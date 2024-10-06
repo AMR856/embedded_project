@@ -1,2 +1,3 @@
 wmi
-psutil
+firebase_admin
+python-dotenv
