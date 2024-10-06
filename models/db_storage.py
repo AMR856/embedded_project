@@ -26,8 +26,8 @@ class DbStorage:
         }
         ref = db.reference('users')
         users = ref.get()
-        for _, user_data in users.items():
-            if user_data['username'] == username and user_data['cpu_id'] == computer.cpu_id:
+        for _, data in users.items():
+            if data['username'] == username and data['cpu_id'] == computer.cpu_id:
                 print('User already registered')
                 return
         ref.push(user_data)
