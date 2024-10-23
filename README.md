@@ -1,1 +1,1 @@
-Ketahea's Project
+Embedded Project
