@@ -1,0 +1,20 @@
+{
+    "computer_178BFBFF00800F82": {
+        "cpu_id": "178BFBFF00800F82",
+        "board_serial_number": "K816200472",
+        "hard_disk_serial_number": "5RXADVT1",
+        "mac_address": "cc:d9:ac:3d:2b:55"
+    },
+    "computer_d0cb57b74cd24d88887037b8f3d46fcc": {
+        "cpu_id": "d0cb57b74cd24d88887037b8f3d46fcc",
+        "board_serial_number": "f944b69f69bb4d5f910af97be7fbde0e",
+        "hard_disk_serial_number": "7f5b25e4aa554c6b9fa125fa94229263",
+        "mac_address": "00:50:56:c0:00:08"
+    },
+    "computer_20a613a6ca3c4c41a6388f0b7fb6dedf": {
+        "cpu_id": "20a613a6ca3c4c41a6388f0b7fb6dedf",
+        "board_serial_number": "28596f857ed245519fbc4abdca8bcddf",
+        "hard_disk_serial_number": "c4525d670f554fa5bf3976672e99e837",
+        "mac_address": "00:50:56:c0:00:08"
+    }
+}
