@@ -1,3 +1,0 @@
-wmi
-firebase_admin
-python-dotenv
