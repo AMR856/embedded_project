@@ -1,40 +1,61 @@
+from turtle import width
 import openpyxl 
 import math
-from typing import List, Union
+import tkinter as tk
+from tkinter import messagebox
+from utilites import filter_row, save_to_file
 
-def get_max(values_list: List[Union[float, None]]) -> Union[int, float]:
-    max = float('-inf')
-    for value in values_list:
-        if value and value > max:
-            max = value
-    return max
-
-def normalizer(values_list: List[Union[int, float, None, str]],
-            max_value: Union[int, float]) -> List[Union[int, float, None, str]]:
-    values_list[1] = 'Normalized'
-    for i in range(2, len(values_list[2:])):
-        if values_list[i]:
-            values_list[i] = round(values_list[i] / max_value, 3)
-    return tuple(values_list)
+def process_readings():
+    try:
+        readings = list(map(float, map(str.strip, entry.get().split(','))))
+        print(readings)
+        indexer = 0
+        is_matching = True
+        for key, value in ic_saved_dict.items():
+            while indexer <= len(value) - 1:
+                print(f'Reading: {readings[indexer]} | Saved_value: {value[indexer]}')
+                print(f'Current index: {indexer}')
+                if readings[indexer] != value[indexer]:
+                    is_matching = False
+                    break
+                indexer += 1
+            if is_matching:
+                messagebox.showinfo('Test Result', f'IC Name is {key}')
+                break
+            is_matching = True
+            indexer = 0
+        if not is_matching:
+            messagebox.showinfo('Test result', "Your IC wasn't found")
+    except Exception as err:
+        messagebox.showerror('Input error', 'Please enput the readings in the right format')
+        print(err)
 
 if __name__ == "__main__":
+    root = tk.Tk()
+    root.title("IC Tester")
+    root.geometry("900x300")
     wb = openpyxl.load_workbook('./data/embedded_sysetms_ICS_readings.xlsx')
     ws = wb.active
     rows_count = ws.max_row
-    ics_count = math.ceil(rows_count / 5)
+    ics_count = math.floor(rows_count / 5)
     rows_values = list(ws.iter_rows(values_only=True))
     current_ic_index = 0
+    ic_saved_dict = {}
     while current_ic_index < ics_count:
-        print('----------------')
         indexer = 5 * current_ic_index
         names_row = rows_values[indexer]
-        print(f'Names Row: {names_row}')
         pins_row = rows_values[indexer + 1]
-        print(f'Pins Row: {pins_row}')
         readings_row = rows_values[indexer + 2]
-        max_value = get_max(readings_row[2:])
-        print(f'Readings Row: {readings_row}')
-        normalized_row = normalizer(list(readings_row), max_value)
-        print(f'Normalized Row: {normalized_row}')
+        normalized_row = rows_values[indexer + 3]
+        ic_saved_dict[names_row[0]] = filter_row(normalized_row[2:])
         current_ic_index += 1
-        print('----------------')
+
+    # print(ic_saved_dict)
+    save_to_file(ic_saved_dict)
+    label = tk.Label(root, text="Enter IC readings: ")
+    label.pack(pady=10)
+    entry = tk.Entry(root, width=80)
+    entry.pack(pady=5)
+    button = tk.Button(root, text="Submit", command=process_readings)
+    button.pack(pady=10)
+    root.mainloop()
