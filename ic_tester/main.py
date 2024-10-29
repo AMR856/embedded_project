@@ -5,16 +5,13 @@ import tkinter as tk
 from tkinter import messagebox
 from utilites import filter_row, save_to_file
 
-def process_readings():
+def process_readings() -> None:
     try:
         readings = list(map(float, map(str.strip, entry.get().split(','))))
-        print(readings)
         indexer = 0
         is_matching = True
         for key, value in ic_saved_dict.items():
             while indexer <= len(value) - 1:
-                print(f'Reading: {readings[indexer]} | Saved_value: {value[indexer]}')
-                print(f'Current index: {indexer}')
                 if readings[indexer] != value[indexer]:
                     is_matching = False
                     break
@@ -50,7 +47,6 @@ if __name__ == "__main__":
         ic_saved_dict[names_row[0]] = filter_row(normalized_row[2:])
         current_ic_index += 1
 
-    # print(ic_saved_dict)
     save_to_file(ic_saved_dict)
     label = tk.Label(root, text="Enter IC readings: ")
     label.pack(pady=10)
