@@ -22,4 +22,5 @@ def filter_row(normlalized_row: List[Union[None, float]]) -> List:
 def save_to_file(ic_saved_dict: Dict[str, List[float]]) -> None:
     with open('./data/ics_data.txt', 'w', encoding='utf8') as file:
         for key, value in ic_saved_dict.items():
-            file.write(f'{key}: {value}\n')
+            str_list = repr(value).lstrip('[').rstrip(']')
+            file.write(f'{key}: {str_list}\n')
