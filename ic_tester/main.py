@@ -25,7 +25,7 @@ def process_readings() -> None:
             messagebox.showinfo('Test result', "Your IC wasn't found")
     except Exception as err:
         messagebox.showerror('Input error', 'Please enput the readings in the right format')
-        print(err)
+        print(f'Error: {err}')
 
 if __name__ == "__main__":
     root = tk.Tk()
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     wb = openpyxl.load_workbook('./data/embedded_sysetms_ICS_readings.xlsx')
     ws = wb.active
     rows_count = ws.max_row
-    ics_count = math.floor(rows_count / 5)
+    ics_count = math.ceil(rows_count / 5)
     rows_values = list(ws.iter_rows(values_only=True))
     current_ic_index = 0
     ic_saved_dict = {}
