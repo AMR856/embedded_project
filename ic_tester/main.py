@@ -24,11 +24,8 @@ def process_readings() -> None:
         if not is_matching:
             messagebox.showinfo('Test result', "Your IC wasn't found")
     except Exception as err:
-        if isinstance(err, IndexError):
-            messagebox.showinfo('IC Error', "We don't have an IC with this number of pins")
-        else:
-            messagebox.showerror('Input error', 'Please enput the readings in the right format')
-            print(f'Error: {err}')
+        messagebox.showerror('Input error', 'Please enput the readings in the right format')
+        print(f'Error: {err}')
 
 if __name__ == "__main__":
     root = tk.Tk()
