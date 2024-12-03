@@ -12,7 +12,7 @@ def process_readings() -> None:
         is_matching = True
         for key, value in ic_saved_dict.items():
             while indexer <= len(value) - 1:
-                if abs(readings[indexer] - value[indexer]) >= 0.100:
+                if readings[indexer] != value[indexer]:
                     is_matching = False
                     break
                 indexer += 1
