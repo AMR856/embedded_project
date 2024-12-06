@@ -56,7 +56,6 @@ class DbStorage:
                 else:
                     print("Incorrect password.")
                     return False
-        print("Username not found.")
         return False
 
     @staticmethod

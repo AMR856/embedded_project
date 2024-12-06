@@ -2,39 +2,43 @@
 import wmi
 import uuid
 from models.computer import Computer
-from models.file_storage import FileStorage
+# from models.file_storage import FileStorage # This was used for testing
 from models.db_storage import DbStorage
+import tkinter as tk
 from dotenv import load_dotenv
 import os
-# from helpers.geneartor import random_generating
+# from helpers.geneartor import random_generating # This was used for testing
+
+def check_user(pr_processor: str, pc_motherboard: str,
+            pc_hard_drive: str, pc_mac: str):
+    pass
 
 if __name__ == '__main__':
     load_dotenv()
     pc = wmi.WMI()
-    computer = Computer(pc.WIN32_Processor()[0].ProcessorId,
-                        pc.Win32_BaseBoard()[0].SerialNumber,
-                        pc.Win32_DiskDrive()[0].SerialNumber.strip(),
-                        ':'.join(
+    pc_processor = pc.WIN32_Processor()[0].ProcessorId
+    pc_motherboard = pc.Win32_BaseBoard()[0].SerialNumber
+    pc_hard_drive = pc.Win32_DiskDrive()[0].SerialNumber.strip()
+    pc_mac = ':'.join(
                             ['{:02x}'.format((uuid.getnode() >> ele) & 0xff) for ele in range(0,8*6,8)][::-1]
-                            ))
+            )
+
+    computer = Computer(pc_processor,
+                        pc_motherboard,
+                        pc_hard_drive,
+                        pc_mac
+                )
+
     if os.getenv('DB_STORAGE'):
         DbStorage.connect()
         while True:
-            print('#########################################################')
-            print('What do you want to do: ')
-            print('1- Registring into the database')
-            print('2- Logging in the database')
-            print('3- Exit the program')
-            print('#########################################################')
-            user_input = int(input())
-            if user_input == 1:
-                DbStorage.register_user(computer)
-            elif user_input == 2:
-                logged_in: bool = DbStorage.authenticate_user(computer)
-                if logged_in:
-                    break
-            elif user_input == 3:
-                break
-            else:
-                print('Invalid choice')
-                continue
+            root = tk.Tk()
+            root.title("Firebase Auth")
+            root.geometry("900x300")
+            label = tk.Label(root, text="Enter IC readings: ")
+            label.pack(pady=10)
+            entry = tk.Entry(root, width=80)
+            entry.pack(pady=5)
+            button = tk.Button(root, text="Submit", command=check_user)
+            button.pack(pady=10)
+            root.mainloop()
