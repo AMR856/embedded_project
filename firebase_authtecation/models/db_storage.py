@@ -2,6 +2,7 @@
 import hashlib
 from models.computer import Computer
 import firebase_admin
+import uuid
 from firebase_admin import credentials, db
 import os
 
@@ -11,14 +12,9 @@ class DbStorage:
         return hashlib.sha256(password.encode()).hexdigest()
 
     @classmethod
-    def register_user(cls, computer: Computer) -> None:
-        username = input("Enter username: ")
-        password = input("Enter password: ")
-        hashed_password = cls.hash_password(password)
-
+    def register_user(cls, computer: Computer) -> bool:
         user_data = {
-            'username': username,
-            'password': hashed_password,
+            'user_id': str(uuid.uuid4()),
             'cpu_id': computer.cpu_id,
             'motherboard_serial_number': computer.board_serial_number,
             'hard_disk_serial_number': computer.hard_disk_serial_number,
@@ -27,35 +23,24 @@ class DbStorage:
         ref = db.reference('users')
         users = ref.get()
         for _, data in users.items():
-            if data['username'] == username and data['cpu_id'] == computer.cpu_id:
-                print('User already registered')
-                return
+            if data['cpu_id'] == computer.cpu_id and \
+            data['motherboard_serial_number'] == computer.board_serial_number and \
+            data['hard_disk_serial_number'] == computer.hard_disk_serial_number and \
+            data['mac_address'] == computer.mac_address:
+                return False
         ref.push(user_data)
-        print("User registered successfully!")
+        return True
 
     @classmethod
     def authenticate_user(cls, computer: Computer) -> bool:
-        username = input("Enter username: ")
-        password = input("Enter password: ")
-        hashed_password = cls.hash_password(password)
-
         ref = db.reference('users')
         users = ref.get()
         for _, user_data in users.items():
-            if user_data['username'] == username:
-                if user_data['password'] == hashed_password:
-                    if (user_data['cpu_id'] == computer.cpu_id and
-                        user_data['motherboard_serial_number'] == computer.board_serial_number and
-                        user_data['hard_disk_serial_number'] == computer.hard_disk_serial_number and
-                        user_data['mac_address'] == computer.mac_address):
-                        print("Login successful!")
-                        return True
-                    else:
-                        print("Hardware information does not match.")
-                        return False
-                else:
-                    print("Incorrect password.")
-                    return False
+                if (user_data['cpu_id'] == computer.cpu_id and
+                    user_data['motherboard_serial_number'] == computer.board_serial_number and
+                    user_data['hard_disk_serial_number'] == computer.hard_disk_serial_number and
+                    user_data['mac_address'] == computer.mac_address):
+                    return True
         return False
 
     @staticmethod
