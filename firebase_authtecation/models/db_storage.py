@@ -23,10 +23,10 @@ class DbStorage:
         ref = db.reference('users')
         users = ref.get()
         for _, data in users.items():
-            if data['cpu_id'] == computer.cpu_id and \
-            data['motherboard_serial_number'] == computer.board_serial_number and \
-            data['hard_disk_serial_number'] == computer.hard_disk_serial_number and \
-            data['mac_address'] == computer.mac_address:
+            if data.get('cpu_id') == computer.cpu_id and \
+            data.get('motherboard_serial_number') == computer.board_serial_number and \
+            data.get('hard_disk_serial_number') == computer.hard_disk_serial_number and \
+            data.get('mac_address') == computer.mac_address:
                 return False
         ref.push(user_data)
         return True
@@ -36,10 +36,10 @@ class DbStorage:
         ref = db.reference('users')
         users = ref.get()
         for _, user_data in users.items():
-                if (user_data['cpu_id'] == computer.cpu_id and
-                    user_data['motherboard_serial_number'] == computer.board_serial_number and
-                    user_data['hard_disk_serial_number'] == computer.hard_disk_serial_number and
-                    user_data['mac_address'] == computer.mac_address):
+                if (user_data.get('cpu_id')  == computer.cpu_id and
+                    user_data.get('motherboard_serial_number') == computer.board_serial_number and
+                    user_data.get('hard_disk_serial_number') == computer.hard_disk_serial_number and
+                    user_data.get('mac_address')  == computer.mac_address):
                     return True
         return False
 

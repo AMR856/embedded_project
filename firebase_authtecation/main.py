@@ -28,7 +28,7 @@ def register_user(computer: Computer):
 
 def login_user(computer: Computer):
     if DbStorage.authenticate_user(computer):
-        messagebox.showinfo('Success', 'Login was sucessful')
+        messagebox.showinfo('Success', 'Login was successful')
     else:
         messagebox.showerror('Error', 'User is not registered')
 
