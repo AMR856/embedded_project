@@ -2,7 +2,7 @@
 import os
 from flask import Flask, jsonify
 from werkzeug.exceptions import NotFound, InternalServerError, Conflict
-from .views import app_views
+from views import app_views
 from flask_cors import CORS
 import sys
 from helpers import handle_bash_command, load_env, delete_sketch_if_exists

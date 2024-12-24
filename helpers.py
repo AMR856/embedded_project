@@ -20,7 +20,7 @@ def delete_sketch_if_exists():
 def handle_bash_command(cmd: str) -> bool:
     try:
         result = subprocess.run(
-            ["arduino-cli", '-c', cmd],
+            ["bash", '-c', cmd],
             check=True,
             capture_output=True,
             text=True
