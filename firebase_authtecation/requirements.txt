@@ -2,3 +2,4 @@ wmi
 firebase_admin
 python-dotenv
 pyinstaller
+email_validator

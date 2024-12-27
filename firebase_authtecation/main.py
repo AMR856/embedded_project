@@ -3,34 +3,10 @@ import wmi
 import uuid
 from models.computer import Computer
 from models.db_storage import DbStorage
-from models.email import Email
+from tkinter_functions import register_user, login_user
 import tkinter as tk
-from tkinter import E, messagebox
 from dotenv import load_dotenv
 import os
-
-
-def register_user(computer: Computer):
-    email = Email()
-    try:
-        if DbStorage.register_user(computer):
-            msg = email.make_message(computer.cpu_id,
-                                    computer.board_serial_number,
-                                    computer.hard_disk_serial_number,
-                                    computer.mac_address
-            )
-            email.send_email(msg)
-            messagebox.showinfo('Success', 'Computer is now registered')
-        else:
-            messagebox.showinfo('Error', 'Computer is already registered')
-    except Exception as err:
-        print(f'Error: {err}')
-
-def login_user(computer: Computer):
-    if DbStorage.authenticate_user(computer):
-        messagebox.showinfo('Success', 'Login was successful')
-    else:
-        messagebox.showerror('Error', 'User is not registered')
 
 if __name__ == '__main__':
     load_dotenv()
@@ -61,13 +37,22 @@ if __name__ == '__main__':
         root.title("Firebase Authentication")
         root.geometry("900x300")
 
-        instruction_label = tk.Label(root, text="Please select an action:", font=("Arial", 14))
-        instruction_label.pack(pady=10)
+        username_label = tk.Label(root, text="Enter your username:")
+        username_label.pack(pady=5)
+
+        username_input = tk.Entry(root, width=30)
+        username_input.pack(pady=5)
+
+        email_label = tk.Label(root, text="Enter your email:")
+        email_label.pack(pady=5)
+
+        email_input = tk.Entry(root, width=30)
+        email_input.pack(pady=5)
 
         register_button = tk.Button(
             root,
             text="Register",
-            command=lambda: register_user(computer),
+            command=lambda: register_user(computer, username_input, email_input),
             width=20,
             height=2
         )
@@ -76,7 +61,7 @@ if __name__ == '__main__':
         login_button = tk.Button(
             root,
             text="Login",
-            command=lambda: login_user(computer),
+            command=lambda: login_user(computer, username_input, email_input),
             width=20,
             height=2
         )

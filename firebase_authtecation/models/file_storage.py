@@ -91,5 +91,5 @@ class FileStorage:
     @classmethod
     def make_file(cls) -> None:
         if not os.path.exists(cls.__storage_path):
-            with open(cls.__storage_path, 'w') as file:
+            with open(cls.__storage_path, 'w') as _:
                 pass
