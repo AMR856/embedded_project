@@ -49,6 +49,8 @@ export const Toolbar: FC<ToolbarProps> = ({
           <SelectItem value="COM1">COM1</SelectItem>
           <SelectItem value="COM2">COM2</SelectItem>
           <SelectItem value="COM3">COM3</SelectItem>
+          <SelectItem value="COM4">COM4</SelectItem>
+          <SelectItem value="COM5">COM5</SelectItem>
           <SelectItem value="/dev/ttyUSB0">/dev/ttyUSB0</SelectItem>
           <SelectItem value="/dev/ttyUSB1">/dev/ttyUSB1</SelectItem>
         </SelectContent>
