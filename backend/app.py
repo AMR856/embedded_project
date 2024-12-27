@@ -28,7 +28,7 @@ if __name__ == '__main__':
     host = os.getenv("API_HOST", '0.0.0.0')
     port = os.getenv('API_PORT', 3000)
     delete_sketch_if_exists()
-    status = handle_bash_command(f"arduino-cli sketch new {os.getenv('SKETCH_PATH')}")
+    status = handle_bash_command(f"arduino-cli sketch new project_script")
     if not status:
         sys.exit(0)
     app.run(host=host, port=port, debug=True)
