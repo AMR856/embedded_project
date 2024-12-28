@@ -13,6 +13,7 @@ def load_env(env_path: str) -> None:
             os.environ[env_name] = env_value
 
 def delete_sketch_if_exists():
+    print(os.getenv('SKETCH_PATH'))
     if os.path.exists(os.getenv('SKETCH_PATH')):
         print(f"Folder '{os.getenv('SKETCH_PATH')}' already exists. Removing it...")
         shutil.rmtree(os.getenv('SKETCH_PATH'))
