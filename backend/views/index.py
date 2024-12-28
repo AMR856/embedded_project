@@ -1,8 +1,7 @@
 from flask import jsonify, request
 from . import app_views
 from typing import Dict, Any
-import platform
-from helpers import handle_bash_command, handle_board_list_command
+from helpers import handle_bash_command
 import os
 
 @app_views.route('/verfiy', methods=['POST'], strict_slashes=False)
@@ -17,16 +16,13 @@ def compile_code():
     else:
         arduino_board = arduino_board + 'uno'
     script_dest: str = os.getenv('SCRIPT_DEST')
-    if platform.system() == "Windows":
-        script_dest = script_dest.replace('\\', '/')
     code = code.replace('\"', '\\"')
-    overwrite_file_content_cmd: str = f'echo -e "{code}" > {script_dest}'
-    status = handle_bash_command(overwrite_file_content_cmd)
-    if not status:
+    try:
+        with open(script_dest, 'w') as file:
+            file.write(code)
+    except FileNotFoundError as _:
         return jsonify({'err': 'Error happened while overwriting the sketch content'}), 500
     sketch_path: str = os.getenv('SKETCH_PATH')
-    if platform.system() == "Windows":
-        sketch_path = sketch_path.replace('\\', '/')
     compile_code_cmd: str = f"arduino-cli compile --fqbn {arduino_board} {sketch_path}"
     status = handle_bash_command(compile_code_cmd)
     if not status:
@@ -44,15 +40,19 @@ def upload_code():
         arduino_board = 'arduino:avr:' + arduino_board
     else:
         arduino_board = arduino_board + 'uno'
+    script_dest: str = os.getenv('SCRIPT_DEST')
+    try:
+        with open(script_dest, 'w') as file:
+            file.write(code)
+    except FileNotFoundError as _:
+        return jsonify({'err': 'Error happened while overwriting the sketch content'}), 500
     port: str = data.get('port')
     if not port:
         port = 'COM1'
-    is_found: bool = handle_board_list_command(port, arduino_board)
+    is_found: bool = handle_bash_command('arduino-cli board list', port, arduino_board)
     if not is_found:
         return jsonify({'err': 'There\'s no port and board with this combination connected to the computer'}), 400
     sketch_path: str = os.getenv('SKETCH_PATH')
-    if platform.system() == "Windows":
-        sketch_path = sketch_path.replace('\\', '/')
     upload_code_cmd: str = f"arduino-cli upload -p {port} --fqbn {arduino_board} {sketch_path}"
     status = handle_bash_command(upload_code_cmd)
     if not status:
