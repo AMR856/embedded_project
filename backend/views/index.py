@@ -1,60 +1,41 @@
 from flask import jsonify, request
 from . import app_views
-from typing import Dict, Any
-from helpers import handle_bash_command
+from typing import Dict, Any, List
+from models.db_storage import DbStorage
+from helpers import checking_if_sketch_exist, handle_command
 import os
 
-@app_views.route('/verfiy', methods=['POST'], strict_slashes=False)
-def compile_code():
-    data: Dict[Any] = request.get_json()
-    code: str = data.get('code')
-    if not code:
-        return jsonify({'err': 'Code wasn\'t found within the body'}), 400
-    arduino_board: str = data.get('board')
-    if arduino_board:
-        arduino_board = 'arduino:avr:' + arduino_board
-    else:
-        arduino_board = arduino_board + 'uno'
-    script_dest: str = os.getenv('SCRIPT_DEST')
-    code = code.replace('\"', '\\"')
-    try:
-        with open(script_dest, 'w') as file:
-            file.write(code)
-    except FileNotFoundError as _:
-        return jsonify({'err': 'Error happened while overwriting the sketch content'}), 500
-    sketch_path: str = os.getenv('SKETCH_PATH')
-    compile_code_cmd: str = f"arduino-cli compile --fqbn {arduino_board} {sketch_path}"
-    status = handle_bash_command(compile_code_cmd)
-    if not status:
-        return jsonify({'err': 'Error happened while compeiling the code'}), 500
-    return jsonify({'msg': 'Compiled code successfully'}), 200
+IGNORE_LIST: List[str] = ['hex_files', 'models', 'venv',
+                        'views', '__pycache__', '.env',
+                        'app.py', 'helpers.py', 'requirements.txt']
 
-@app_views.route('/upload', methods=['POST'], strict_slashes=False)
-def upload_code():
+@app_views.route('/program', methods=['POST'], strict_slashes=False)
+def program_ardunio():
     data: Dict[Any] = request.get_json()
-    code: str = data.get('code')
-    if not code:
-        return jsonify({'err': 'Code wasn\'t found within the body'}), 400
-    arduino_board: str = data.get('board')
-    if arduino_board:
-        arduino_board = 'arduino:avr:' + arduino_board
-    else:
-        arduino_board = arduino_board + 'uno'
-    script_dest: str = os.getenv('SCRIPT_DEST')
-    try:
-        with open(script_dest, 'w') as file:
-            file.write(code)
-    except FileNotFoundError as _:
-        return jsonify({'err': 'Error happened while overwriting the sketch content'}), 500
-    port: str = data.get('port')
-    if not port:
-        port = 'COM1'
-    is_found: bool = handle_bash_command('arduino-cli board list', port, arduino_board)
+    code_name: str = data.get('file-name')
+    username: str = data.get('username')
+    email: str = data.get('email')
+    is_valid: bool = DbStorage.authenticate_user(email, username)
+    if not is_valid:
+        return jsonify({'err': 'User is not validated'}), 401
+    if not email or not username:
+        return jsonify({'err': 'Email or username weren\'t given'}), 400
+    if not code_name:
+        return jsonify({'err': 'Code name\'t provided in the request'}), 400
+    is_found: bool = checking_if_sketch_exist(code_name)
     if not is_found:
-        return jsonify({'err': 'There\'s no port and board with this combination connected to the computer'}), 400
-    sketch_path: str = os.getenv('SKETCH_PATH')
-    upload_code_cmd: str = f"arduino-cli upload -p {port} --fqbn {arduino_board} {sketch_path}"
-    status = handle_bash_command(upload_code_cmd)
+        return jsonify({'err': 'Code wasn\'t found'}), 400
+    core, port = handle_command('arduino-cli board -json list')
+    status: bool = handle_command(f'arduino-cli upload -p {port} --fqbn {core} --input-file .\\hex_files\\{code_name}.hex')
     if not status:
         return jsonify({'err': 'Error happened while uploading the code'}), 500
     return jsonify({'msg': 'uploaded code successfully'}), 200
+
+@app_views.route('/all-codes', methods=['POST'], strict_slashes=False)
+def get_codes():
+    dirs_list: List[str] = os.listdir('..')
+    returned_list: List[str]
+    for dir in dirs_list:
+        if dir not in IGNORE_LIST:
+            returned_list.append(dir)
+    return jsonify(returned_list), 200
