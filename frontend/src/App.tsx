@@ -1,82 +1,56 @@
-import { useState } from 'react';
-import { Editor } from './components/Editor';
-import { Toolbar } from './components/Toolbar';
-import { StatusBar } from './components/StatusBar';
-import axios from 'axios';
-
-const DEFAULT_SKETCH = `void setup() {
-  // put your setup code here, to run once:
-  pinMode(LED_BUILTIN, OUTPUT);
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(1000);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(1000);
-}`;
+import { useState } from "react";
+import { Header } from "./components/Header";
+import { StatusBar } from "./components/StatusBar";
+import { CenteredButton } from "./components/CenteredButton";
+import { SelectProgram } from "./components/SelectProgram";
+import { InputField } from "./components/InputField";
+import axios from "axios";
 
 function App() {
-  const [code, setCode] = useState(DEFAULT_SKETCH);
-  const [selectedBoard, setSelectedBoard] = useState('uno');
-  const [selectedPort, setSelectedPort] = useState('COM1');
-  const [status, setStatus] = useState('Ready');
+    const [status, setStatus] = useState("Ready");
+    const [selectedProgram, setProgram] = useState("Nothing");
+    const [email, setEmail] = useState('amer.live477@gmail.com');
+    const [username, setUsername] = useState('AmrAlnas');
 
-const handleVerify = () => {
-    setStatus('Verfiying...');
-    axios.post('http://127.0.0.1:3000/verfiy', {
-        code: code,
-        board: selectedBoard
-    })
-    .then(response => {
-        console.log(response.data);
-        setStatus('Verfiying was successful');
-        setTimeout(() => setStatus('Ready'), 2000);
-    })
-    .catch(error => {
-        console.error(error);
-    });
-};
+    const handleEmailChange = (value: string) => {
+        setEmail(value);
+    };
+    const handleUsernameChange = (value: string) => {
+        setUsername(value);
+    };
 
-const handleUpload = () => {
-    setStatus('Uploading...');
-    axios.post('http://127.0.0.1:3000/upload', {
-        code: code,
-        board: selectedBoard,
-        port: selectedPort
-    })
-    .then(response => {
-        console.log(response.data);
-        setStatus('Uploading was successful');
-        setTimeout(() => setStatus('Ready'), 2000);
-    })
-    .catch(error => {
-        console.error(error);
-    });
-};
+    const handleProgramChange = (value: string) => {
+        setProgram(value);
+    };
+    
+    const handleProgram = () => {
+        setStatus("Uploading...");
+        axios
+            .post("http://127.0.0.1:3000/program", {
+                email: email,
+                username: username,
+                filename: selectedProgram
+            })
+            .then((response) => {
+                console.log(response.data);
+                setStatus("Uploading was completed");
+                setTimeout(() => setStatus("Ready"), 2000);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
 
-return (
-    <div className="flex flex-col h-screen bg-background text-foreground">
-    <Toolbar
-        onVerify={handleVerify}
-        onUpload={handleUpload}
-        selectedBoard={selectedBoard}
-        onBoardChange={setSelectedBoard}
-        selectedPort={selectedPort}
-        onPortChange={setSelectedPort}
-    />
-      <div className="flex-1 overflow-hidden">
-        <Editor value={code} onChange={(value) => setCode(value || '')} />
-      
-      </div>
-      <StatusBar
-        status={status}
-        boardInfo={`Board: Arduino ${selectedBoard.charAt(0).toUpperCase() + selectedBoard.slice(1)}`}
-        portInfo={`Port: ${selectedPort}`}
-      />
-    </div>
-  );
+    return (
+        <div className="flex flex-col h-screen bg-background text-foreground">
+            <Header />
+            <SelectProgram selectedProgram={selectedProgram} onProgramChange={handleProgramChange} />
+            <InputField onChange={handleEmailChange} label="Email" placeholder="Enter your email"/>
+            <InputField onChange={handleUsernameChange} label="Username" placeholder="Enter your password"/>
+            <CenteredButton onProgram={handleProgram}/>
+            <StatusBar status={status} />
+        </div>
+    );
 }
 
 export default App;
