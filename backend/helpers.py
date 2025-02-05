@@ -12,13 +12,6 @@ def load_env(env_path: str) -> None:
             env_name, env_value = line.split('=')
             os.environ[env_name] = env_value
 
-def checking_if_sketch_exist(code_name: str) -> bool:
-    dirs_list = os.listdir()
-    for dir in dirs_list:
-        if dir == code_name:
-            return True
-    return False
-
 def handle_command(cmd: str) -> Union[Tuple[str, str], Tuple[bool, None]]:
     try:
         result = subprocess.run(
