@@ -26,7 +26,7 @@ class Email:
 
     def make_message(self, pc_processor: str = '', pc_motherboard: str = '',
                     pc_hard_drive: str = '', pc_mac: str = '', username: str = '',
-                    user_email: str = '', role: Role = Role.OWNER) -> str:
+                    user_email: str = '', role: Role = 2) -> str:
         message: str = ''
         if role is Role.OWNER:
             title = f"PC New Entry: {pc_mac}"

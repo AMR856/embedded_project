@@ -4,10 +4,12 @@ from tkinter import messagebox
 from models.email import Email
 from models.db_storage import DbStorage
 from models.computer import Computer
+import threading
+import requests
 from models.role import Role
 import os
 
-def register_user(computer: Computer, username_input: tkinter.Entry, email_input: tkinter.Entry) -> None:
+def register_user(computer: Computer, username_input: tkinter.Entry, email_input: tkinter.Entry, root: tkinter.Tk) -> None:
     email = Email()
     username = username_input.get()
     if not check_username(username):
@@ -36,7 +38,43 @@ def register_user(computer: Computer, username_input: tkinter.Entry, email_input
             )
             email.send_email(user_msg, user_email)
             messagebox.showinfo('Success', 'Computer is now registered')
+            switch_to_authenticated_window(root)
         else:
             messagebox.showinfo('Error', 'Computer is already registered')
     except Exception as err:
         print(f'Error: {err}')
+
+def switch_to_authenticated_window(root: tkinter.Tk):
+    for widget in root.winfo_children():
+        widget.destroy()
+    create_authenticated_window(root)
+
+def start_task(root:tkinter.Tk, label: tkinter.Label):
+    threading.Thread(target=lambda: program_arduino(root ,label), daemon=True).start()
+
+def create_authenticated_window(root: tkinter.Tk):
+    root.title("Progress Window")
+    label = tkinter.Label(root, text="Press the button to start processing")
+    label.pack(pady=10)
+    start_button = tkinter.Button(root, text="Start Task", width=20, height=3, command=lambda: start_task(root, label))
+    start_button.pack()
+
+def program_arduino(root: tkinter.Tk, label: tkinter.Label):
+    local_host_url = 'http://localhost:3000'
+    url = local_host_url + '/program'
+    try:
+        root.config(cursor="wait")
+        label.config(text="Uploading the code, please wait")
+        response = requests.get(url)
+        if response.status_code != 200:
+            messagebox.showerror("Task Failed", "The task didn't finish properly")
+            label.config(text="Try again")
+            root.config(cursor="")
+            return
+        root.config(cursor="")
+        label.config(text="Uploading is complete!")
+        messagebox.showinfo("Task Complete", "The task has finished successfully!")
+    except requests.exceptions.RequestException as e:
+        root.config(cursor="")
+        label.config(text="Error occurred during the request!")
+        print(f"Error: {e}")
